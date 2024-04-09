@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Food Ordering</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #3498db; /* Light gray background color */
+            background-image: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.8)); /* Vertical gradient from transparent to semi-transparent white */
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0; /* Increased padding for header */
+            text-align: center;
+        }
+
+        section { 
+            margin: 20px auto;
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Added box shadow for section */
+        }
+
+        h1, h2 {
+            margin-top: 0; /* Remove default margin for headings */
+        }
+
+        /* Form Styling */
+        select, input[type="number"], button {
+            margin: 5px 0; /* Adjusted margin for form elements */
+            padding: 10px; /* Increased padding for form elements */
+            width: 100%; /* Make form elements full width */
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none; /* Remove border from button */
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Payment Options Styling */
+        .payment-option {
+            display: none;
+        }
+
+        /* Order Confirmation Styling */
+        #orderConfirmation {
+            margin-top: 20px; /* Add margin to order confirmation message */
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #4CAF50;
+        }
+
+        /* Delivery Boy Styling */
+        .delivery-boy {
+            margin-top: 20px; /* Add margin to delivery boy section */
+            text-align: center;
+        }
+
+        /* Notification Styling */
+        .notification {
+            margin-top: 20px; /* Add margin to notification section */
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Online Food Ordering System</h1>
+    </header>
+    <section>
+        <h2>Select a Restaurant</h2>
+        <select id="restaurant">
+            <option value="Papillion">Papillion</option>
+            <option value="Jajira">Jajira</option>
+            <option value="Rangoli">Rangoli</option>
+            <option value="Hilllock">Hilllock</option>
+            <option value="Leela">Leela</option>
+            <option value="princegarden">princegarden</option>
+        </select>
+        <h2>Menu</h2>
+        <div id="menu">
+            <!-- Menu items will be dynamically populated based on the selected restaurant -->
+        </div>
+        <button onclick="showPaymentOptions()">Place Order</button>
+        <div id="paymentOptions" class="payment-option">
+            <h2>Payment Options</h2>
+            <input type="radio" name="payment" value="credit"> Credit Card<br>
+            <input type="radio" name="payment" value="debit"> Debit Card<br>
+            <input type="radio" name="payment" value="paypal"> PayPal<br>
+            <button onclick="processPayment()">Submit Payment</button>
+        </div>
+        <div id="orderConfirmation"></div>
+    </section>
+
+    <!-- Delivery Boy Details -->
+    <div class="delivery-boy">
+        <h2>Delivery Boy Details</h2>
+        <p>Name: John Doe</p>
+        <p>Contact: 123-456-7890</p>
+    </div>
+
+    <!-- Notification for Food Arrival -->
+    <div class="notification">
+        <p>Your food will arrive in 30 minutes!</p>
+    </div>
+
+    <script>
+        // Sample menu data (replace with real data from your backend)
+        var menuData = {
+            Papillion: [
+                { name: "Garlic Naan", price: 10 },
+                { name: "Butter Roti", price: 15 },
+                { name: "Panner Handi", price: 20 },
+                { name: "Kaju-Kari", price: 22 }
+            ],
+            Jajira: [
+                { name: "Rotla", price: 5 },
+                { name: "Rotli", price: 2 },
+                { name: "Kanda-lasan", price: 10 },
+                { name: "Sev-tameta", price: 12 }
+            ],
+            Rangoli: [
+                { name: "Chinese", price: 8 },
+                { name: "Bhel-puri", price: 3 },
+                { name: "Fired-rice", price: 9 },
+                { name: "Chat-puri", price: 6 }
+            ],
+            Hilllock: [
+                { name: "Momos", price: 7 },
+                { name: "Shusi", price: 12 },
+                { name: "Pizza", price: 11 },
+                { name: "Pasta", price: 12 }
+            ],
+            Leela: [
+                { name: "Italian Pizza", price: 6 },
+                { name: "Nudels", price: 5 },
+                { name: "Sandwich", price: 11 },
+                { name: "Burger", price: 8 }
+            ],
+            princegarden: [
+                { name: "Gujarati Thali", price: 12 },
+                { name: "Panjabi Thali", price: 10 },
+                { name: "South Indian", price: 9 },
+                { name: "Italian Dish", price: 8 }
+            ],
+        };
+
+        function populateMenu() {
+            var restaurant = document.getElementById("restaurant").value;
+            var menu = menuData[restaurant];
+            var menuDiv = document.getElementById("menu");
+            menuDiv.innerHTML = "";
+            menu.forEach(function(item) {
+                var label = document.createElement("label");
+                label.innerHTML = item.name + ": $" + item.price;
+                var input = document.createElement("input");
+                input.type = "number";
+                input.value = 0;
+                input.min = 0;
+                input.name = item.name.replace(/\s+/g, "-").toLowerCase();
+                menuDiv.appendChild(label);
+                menuDiv.appendChild(input);
+                menuDiv.appendChild(document.createElement("br"));
+            });
+        }
+
+        function showPaymentOptions() {
+            populateMenu();
+            var paymentOptions = document.getElementById("paymentOptions");
+            paymentOptions.classList.remove("payment-option");
+        }
+
+        function processPayment() {
+            var totalBill = 0;
+            var selectedItems = document.querySelectorAll("#menu input[type='number']");
+    
+            selectedItems.forEach(function(item) {
+                var itemName = item.name;
+                var itemQuantity = parseInt(item.value);
+                var restaurant = document.getElementById("restaurant").value;
+                var menuItem = menuData[restaurant].find(menuItem => menuItem.name.replace(/\s+/g, "-").toLowerCase() === itemName);
+                totalBill += menuItem.price * itemQuantity;
+            });
+    
+            var confirmationMsg;
+            if (totalBill > 0) {
+                confirmationMsg = "Payment Successful! Total Bill: $" + totalBill.toFixed(2);
+            } else {
+                confirmationMsg = "Please select at least one item to place the order.";
+            }
+            document.getElementById("orderConfirmation").innerText = confirmationMsg;
+        }
+
+        document.getElementById("restaurant").addEventListener("change", populateMenu);
+    </script>
+</body>
+</html>
